@@ -7,6 +7,10 @@ var sitename = document.getElementById('sitename').value;
 console.log(sitename);
 var siteurl = document.getElementById('siteurl').value;
 
+if(!validateForm(sitename, siteurl)){
+  return false;
+}
+
 var bookmark = {
   name: sitename,
   url: siteurl
@@ -31,10 +35,29 @@ console.log(siteurl);
    // reset back to local storage
    localStorage.setItem('bookmarks', JSON.stringify(bookmarks));
  }
-
+ // re-fetchbookmarks
+ fetchbookmarks();
 
   // prevent form from submitting
   e.preventDefault();
+}
+
+// deleteBookmark
+function deleteBookmark(url) {
+  // get bookmarks from kocal localStorage
+  var bookmarks = JSON.parse(localStorage.getItem('bookmarks'));
+  // loop through bookmarksResults
+  for(var i = 0;i < bookmarks.length;i++){
+    if(bookmarks[i].url == url){
+      // remove from array
+      bookmarks.splice(i,1);
+    }
+  }
+  // reset back to local storage
+  localStorage.setItem('bookmarks', JSON.stringify(bookmarks));
+
+  // re-fetchbookmarks
+  fetchbookmarks();
 }
 
 // fetch bookmarks
@@ -52,6 +75,28 @@ function fetchbookmarks(){
     var name = bookmarks[i].name;
     var url = bookmarks[i].url;
 
-    bookmarksResults.innerHTML += name;
+  bookmarksResults.innerHTML += '<div class = "well">'+
+                                  '<h3>'+name+
+                                  ' <a class = "btn btn-default" target ="_blank" href = "'+url+'">Visit</a> ' +
+                                  ' <a onclick="deleteBookmark(\''+url+'\')" class="btn btn-danger" href="#">Delete</a> ' +
+                                  '</h3>'+
+                                  '</div>';
   }
+}
+
+// validate format
+function validateForm(sitename, siteurl){
+  if(!sitename || !siteurl){
+    alert('Please fill in the form');
+    return false;
+  }
+
+  var expression = /[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@:%_\+.~#?&//=]*)?/gi;
+  var regex = new RegExp(expression);
+
+  if(!siteurl.match(regex)){
+    alert('Please Use a Valid URL');
+    return false;
+  }
+  return true;
 }
